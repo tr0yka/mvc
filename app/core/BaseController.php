@@ -15,23 +15,27 @@ class BaseController{
         $dbConfigPath = $this->root.'/app/core/config/dbconfig.php';
         $routerPath = $this->root.'/app/core/Router.php';
         $appconfigPath = $this->root.'/app/core/config/appconfig.php';
+        $routesPath = $this->root.'/app/core/config/routes.php';
 
-        if(file_exists($dbClassPath) && file_exists($dbConfigPath)){
+        if(file_exists($dbClassPath) || file_exists($dbConfigPath)){
             require_once $dbClassPath;
             $dbconfig = require_once $dbConfigPath;
             $this->db = new DB($dbconfig);
         }else{
             throw new Exception('Класс или настройки БД не найдены');
         }
-        if(file_exists($routerPath)){
+        if(file_exists($routerPath) || file_exists($routesPath)){
             require_once $routerPath;
-            $router = new Router();
+            $routes  = require_once $routesPath;
+            $router = new Router($routes);
             $router->run();
         }else{
             throw new Exception('Файл роутинга не найден - '.$routerPath);
         }
         if(file_exists($appconfigPath)){
             $this->config = require_once $appconfigPath;
+        }else{
+            throw new Exception('Файл конфигурации не найден');
         }
 
     }
