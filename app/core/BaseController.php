@@ -1,17 +1,23 @@
 <?php
+namespace App\Controller;
+
+use App\DataBase\DB;
+use App\Router\Router;
+use App\Models;
 
 class BaseController{
 
     public $db;
     public $root;
     public $config;
+    //public $model;
 
     public function __construct($root){
         $this->root = $root;
     }
 
     public function run(){
-        $dbClassPath = $this->root.'/app/core/components/db.php';
+        $dbClassPath = $this->root.'/app/core/db.php';
         $dbConfigPath = $this->root.'/app/core/config/dbconfig.php';
         $routerPath = $this->root.'/app/core/Router.php';
         $appconfigPath = $this->root.'/app/core/config/appconfig.php';
@@ -27,7 +33,7 @@ class BaseController{
         if(file_exists($routerPath) || file_exists($routesPath)){
             require_once $routerPath;
             $routes  = require_once $routesPath;
-            $router = new Router($routes);
+            $router = new Router($routes,$this->root);
             $router->run();
         }else{
             throw new Exception('Файл роутинга не найден - '.$routerPath);
@@ -39,5 +45,17 @@ class BaseController{
         }
 
     }
+
+    public function getModel($name){
+        $modelPath = $this->root.'/app/models/'.$name.'.php';
+        if(file_exists($modelPath)){
+            require_once $modelPath;
+            $model = "\\App\\Models\\$name";
+            return new $model($this->config);
+        }else{
+            throw new \Exception('Файл модели '.$name.' не нйден');
+        }
+    }
+
 
 }
